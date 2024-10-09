@@ -4,9 +4,17 @@ const UserContext = React.createContext();
 
 export const UserProvider = ({ children }) => {
     const [user, setUser] = useState({
-        id: null,
+        id: localStorage.getItem('token') ? 'placeholderId' : null,
         isAdmin: false
     });
+
+    // Function to set user on login
+    const setLoggedInUser = (userId) => {
+        setUser({
+            id: userId,
+            isAdmin: false // Adjust if admin data is available
+        });
+    };
 
     // Function to clear user data on logout
     const unsetUser = () => {
@@ -18,31 +26,13 @@ export const UserProvider = ({ children }) => {
     };
 
     useEffect(() => {
-        const token = localStorage.getItem('token');
-        if (token) {
-            // Fetch user details if token exists
-            fetch('https://fitnessapp-api-ln8u.onrender.com/users/details', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            })
-            .then(res => res.json())
-            .then(data => {
-                if (data.user) {
-                    setUser({
-                        id: data.user._id,
-                        isAdmin: data.user.isAdmin
-                    });
-                }
-            })
-            .catch(() => {
-                unsetUser();
-            });
+        if (!localStorage.getItem('token')) {
+            unsetUser();
         }
     }, []);
 
     return (
-        <UserContext.Provider value={{ user, setUser, unsetUser }}>
+        <UserContext.Provider value={{ user, setUser: setLoggedInUser, unsetUser }}>
             {children}
         </UserContext.Provider>
     );

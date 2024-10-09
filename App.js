@@ -10,7 +10,6 @@ import Logout from './pages/Logout';
 import Register from './pages/Register';
 import AddWorkout from './pages/AddWorkout';
 
-
 import './App.css';
 import { UserProvider } from './UserContext';
 
@@ -20,7 +19,6 @@ function App() {
       isAdmin: false
     });
 
-    // Clears the local storage and resets the user state
     const unsetUser = () => {
       localStorage.clear();
       setUser({
@@ -29,18 +27,24 @@ function App() {
       });
     };
 
-    // Check token existence on component mount
     useEffect(() => {
-      const token = localStorage.getItem('token');
-      if (token) {
-        // Assume user is logged in if token exists (can add additional checks if needed)
-        setUser({
-          id: "dummyUserId",  // Use a placeholder or handle actual user details here
-          isAdmin: false  // Set based on your application's requirements
-        });
-      } else {
-        unsetUser();
-      }
+      fetch(`https://fitnessapp-api-ln8u.onrender.com/users/details`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem('token')}`
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.user) {
+          setUser({
+            id: data.user._id,
+            isAdmin: data.user.isAdmin
+          });
+        } else {
+          unsetUser();
+        }
+      })
+      .catch(() => unsetUser());
     }, []);
 
   return (
@@ -52,9 +56,9 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/workouts" element={<Workouts />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/addWorkout" element={<AddWorkout />} />
             <Route path="/login" element={<Login />} />
             <Route path="/logout" element={<Logout />} />
+            <Route path="/addWorkout" element={<AddWorkout />} />
             <Route path="*" element={<Error />} />
           </Routes>
         </Container>

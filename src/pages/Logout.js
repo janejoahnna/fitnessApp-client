@@ -4,15 +4,12 @@ import UserContext from '../UserContext';
 
 export default function Logout() {
 
-    const { unsetUser, setUser } = useContext(UserContext);
+    const { unsetUser } = useContext(UserContext);
 
     useEffect(() => {
         // Clear user data on logout
         unsetUser();
-        setUser({
-            id: null
-        });
-    }, [unsetUser, setUser]);
+    }, [unsetUser]);
 
     return (
         <Navigate to='/login' />

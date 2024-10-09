@@ -1,12 +1,13 @@
 import { useState, useEffect, useContext } from 'react';
 import { Form, Button } from 'react-bootstrap';
-import { Navigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import UserContext from '../UserContext';
 
 export default function Register() {
 
 	const { user } = useContext(UserContext);
+	const navigate = useNavigate();
 
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
@@ -14,10 +15,9 @@ export default function Register() {
 	const [isActive, setIsActive] = useState(false);
 
 	function registerUser(e) {
-		// Prevents page redirection via form submission
 		e.preventDefault();
 
-		fetch('https://fitnessapp-api-ln8u.onrender.com/register', {
+		fetch('https://fitnessapp-api-ln8u.onrender.com/users/register', {
 			method: 'POST',
 			headers: {
 				"Content-Type": "application/json"
@@ -38,6 +38,8 @@ export default function Register() {
 					title: "Registration Successful",
 					icon: "success",
 					text: "Thank you for registering!"
+				}).then(() => {
+					navigate('/login');
 				});
 			} else {
 				Swal.fire({
@@ -50,7 +52,6 @@ export default function Register() {
 	}
 
 	useEffect(() => {
-		// Enables the submit button only if all fields are filled and passwords match
 		if ((email !== "" && password !== "" && confirmPassword !== "") && (password === confirmPassword)) {
 			setIsActive(true);
 		} else {
